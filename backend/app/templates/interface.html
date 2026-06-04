@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <title>세마포어 - 공용 공간 좌석 혼잡도 관리 시스템</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f6f9;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-top: 10px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .butten-camera {
+            background-color: #7f8c8d;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+
+        .butten-camera:hover {
+            background-color: #95a5a6;
+        }
+
+        /* 온습도 패널 구역 */
+        .sensor-panel {
+            display: flex;
+            gap: 20px;
+            justify-content: space-around;
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .sensor-card {
+            text-align: center;
+            flex: 1;
+        }
+
+        .sensor-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #3498db;
+            margin-top: 10px;
+        }
+
+        /* 실시간 좌석 배치도 구역 */
+        .seat-container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .seat-grid {
+            display: grid;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .seat {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        .seat.available {
+            background-color: #2ecc71;
+        }
+
+        .seat.occupied {
+            background-color: #e74c3c;
+            animation: pulse 0.5s ease-in-out;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.1);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        #toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .toast {
+            background-color: #333333;
+            color: #ffffff;
+            padding: 16px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            min-width: 280px;
+            animation: slideIn 0.3s ease, fadeOut 0.5s ease 4.5s forwards;
+            border-left: 6px solid yellow;
+        }
+
+        /* 안내 전용 알림은 푸른색 바가 뜨도록 레이아웃 고정 */
+        .toast.info {
+            border-left-color: #3498db;
+        }
+
+        .toast-title {
+            font-weight: bold;
+            font-size: 1rem;
+            color: #f39c12;
+        }
+
+        .toast-body {
+            font-size: 0.9rem;
+            color: #eee;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+            }
+
+            to {
+                opacity: 0;
+            }
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            align-items: center;
+            justify-content: center;
+        }
+
+        .model-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 12px;
+            max-width: 640px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 30px;
+            font-weight: bold;
+            color: #aaa;
+            cursor: pointer;
+        }
+
+        .modal-close:hover {
+            color: #333;
+        }
+
+        .debug-img {
+            width: 100%;
+            max-height: 400px;
+            object-fit: contain;
+            margin-top: 15px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            background-color: #000;
+        }
+
+        .btn-refresh {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+
+        .btn-refresh:hover {
+            background-color: #2980b9;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="toast-container"></div>
+
+    <div class="container">
+        <div class="header">
+            <div style="width: 100px;"></div>
+            <h1>공용 공간 자리 혼잡도 시스템</h1>
+            <button class="butten-camera" onclick="openDebugModal()">현 상황 보기</button>
+        </div>
+
+        <div class="sensor-panel">
+            <div class="sensor-card">
+                <h3>현재 온도</h3>
+                <div id="temp-value" class="sensor-value">-- °C</div>
+            </div>
+            <div class="sensor-card">
+                <h3>현재 습도</h3>
+                <div id="hum-value" class="sensor-value">-- %</div>
+            </div>
+        </div>
+
+        <div class="seat-container">
+            <h3>실시간 좌석 배치도</h3>
+            <div id="seat-layout" class="seat-grid"></div>
+        </div>
+    </div>
+
+    <div id="camera-modal" class="modal">
+        <div class="model-content">
+            <span class="modal-close" onclick="closeDebugModal()">&times;</span>
+            <h3>CCTV 실시간 상황 (/debug/frame에서 가져온 이미지)</h3>
+            <p style="color: #666; font-size: 0.9rem; margin:0;">YOLO 모델이 분석 중인 라즈베리파이 카메라의 최신 이미지입니다.</p>
+            <img id="frame-image" src="" alt="최신 이미지 불러오는 중..." class="debug-img">
+            <br>
+            <button class="btn-refresh" onclick="refreshFrame()">🔄 새로고침</button>
+        </div>
+    </div>
+
+    <script>
+        const SERVER_URL = window.location.host; // 백엔드 주소 동적 할당
+
+        // 페이지 로드시 최초 1회 전체 데이터 가져오기
+        async function fetchInitialData() {
+            try {
+                const response = await fetch(`http://${SERVER_URL}/get/live`);
+                const data = await response.json();
+                updateSensorUI(data.temp, data.hum);
+                renderSeatGrid(data.seatList);
+            } catch (error) {
+                console.error("초기 데이터를 가져오는데 실패했습니다:", error);
+            }
+        }
+
+        function updateSensorUI(temp, hum) {
+            document.getElementById('temp-value').innerText = `${temp.toFixed(1)} °C`;
+            document.getElementById('hum-value').innerText = `${hum.toFixed(1)} %`;
+        }
+
+        function renderSeatGrid(seatList) {
+            const gridContainer = document.getElementById('seat-layout');
+            gridContainer.innerHTML = ''; // 초기화
+
+            const rows = seatList.length;
+            const cols = seatList[0].length;
+
+            gridContainer.style.gridTemplateColumns = `repeat(${cols}, 60px)`;
+
+            for (let x = 0; x < rows; x++) {
+                for (let y = 0; y < cols; y++) {
+                    const isOccupied = seatList[x][y];
+                    const seatDiv = document.createElement('div');
+                    seatDiv.id = `seat-${x}-${y}`;
+                    seatDiv.className = `seat ${isOccupied ? 'occupied' : 'available'}`;
+                    seatDiv.innerText = `${x + 1}-${y + 1}`;
+                    gridContainer.appendChild(seatDiv);
+                }
+            }
+        }
+
+        function showNotification(title, message, type = 'warning') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+
+            toast.innerHTML = `
+                <div class="toast-title">${title}</div>
+                <div class="toast-body">${message}</div>
+            `;
+
+            container.appendChild(toast);
+
+            // 5초 후 알림 화면에서 완전 제거
+            setTimeout(() => {
+                toast.remove();
+            }, 5000);
+        }
+
+        // 2. 웹소켓 실시간 알림 연결 및 동적 분기 처리
+        function connectWebSocket() {
+            const ws = new WebSocket(`ws://${SERVER_URL}/ws/notify`);
+
+            ws.onmessage = function (event) {
+                const data = JSON.parse(event.data);
+
+                // 명세서 주의사항 분기 처리: latestSeat 가 있는지 확인 후 알림 상자 호출 연동
+                if (data.latestSeat) {
+                    data.latestSeat.forEach(change => {
+                        const seatElement = document.getElementById(`seat-${change.x}-${change.y}`);
+                        if (seatElement) {
+                            const seatName = `${change.x + 1}행 ${change.y + 1}열`;
+                            if (change.newStatus) {
+                                seatElement.className = 'seat occupied';
+                                showNotification('좌석 이용 시작', `${seatName} 좌석을 사용중입니다.`, 'info');
+                            } else {
+                                seatElement.className = 'seat available';
+                                showNotification('⚠️ 시스템 자동 반납', `${seatName} 좌석이 자동으로 반납 처리되었습니다.`, 'warning');
+                            }
+                        }
+                    });
+                }
+                else if (data.latestSensor) {
+                    updateSensorUI(data.latestSensor.temp, data.latestSensor.hum);
+                }
+            };
+
+            ws.onclose = function () {
+                console.log("웹소켓 연결이 끊겼습니다. 3초 후 재연결합니다.");
+                setTimeout(connectWebSocket, 3000); // 좀비 재연결 시스템 보존
+            };
+        }
+
+        // 3. 카메라 실시간 프레임 팝업창 제어용 자바스크립트 함수 추가
+        function openDebugModal() {
+            document.getElementById('camera-modal').style.display = 'flex';
+            refreshFrame();
+        }
+
+        function closeDebugModal() {
+            document.getElementById('camera-modal').style.display = 'none';
+        }
+
+        function refreshFrame() {
+            const imgElement = document.getElementById('frame-image');
+            imgElement.src = `http://${SERVER_URL}/debug/frame?t=${new Date().getTime()}`;
+        }
+
+        window.onload = function () {
+            fetchInitialData();
+            connectWebSocket();
+        };
+    </script>
+</body>
+
+</html>
