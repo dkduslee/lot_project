@@ -3,10 +3,8 @@
 ```bash
 # backend 폴더 안으로 이동
 
-# 최초 1회 가상환경 생성 및 설정 셋팅
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt  # 필요한 패키지 설치 (최초 1회)
+# 최초 1회 셋팅
+# 가상환경은 레포지토리 루트에 하나만 둔다. 이름: .iotvenv로 통일
 cp .env.example .env  # 설정 파일 생성
 
 
