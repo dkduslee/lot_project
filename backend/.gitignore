@@ -7,3 +7,4 @@ __pycache__/
 frames/*.png
 !frames/sample.png
 data/*.db
+.idea/
