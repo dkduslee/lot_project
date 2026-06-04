@@ -1,6 +1,11 @@
 from app import create_app
+from flask import Flask, render_template
 
 app = create_app()
+
+@app.route('/')
+def index():
+    return render_template('interface.html')
 
 # 서버 시작
 if __name__ == "__main__":
