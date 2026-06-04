@@ -3,117 +3,201 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>세마포어 - 공용 공간 좌석 혼잡도 관리 시스템</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>세마포어 - 열람실 좌석 혼잡도 시스템</title>
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+
     <style>
+        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+
+        :root {
+            --yu-navy: #002c5f;
+            --yu-blue: #005aab;
+            --yu-gold: #ffcf0e;
+            --bg-light: #f5f7fa;
+            --seat-green: #36b37e;
+            --seat-red: #ff5630;
+        }
+
         body {
-            font-family: 'Arial', sans-serif;
-            background-color: #f4f6f9;
-            color: #333;
+            font-family: 'Pretendard', sans-serif;
+            background-color: var(--bg-light);
+            color: #2d3748;
             margin: 0;
-            padding: 20px;
+            padding: 40px 20px;
         }
 
-        .container {
-            max-width: 800px;
+        .dashboard-wrapper {
+            max-width: 900px;
             margin: 0 auto;
-            position: relative;
         }
 
-        h1 {
-            text-align: center;
-            color: #2c3e50;
-            margin-top: 10px;
-        }
+        .yu-header {
+            background-color: #005aab;
+            background-image: linear-gradient(rgba(123, 172, 228, 0.3),
+                rgba(44, 90, 143, 0.3)),
+            url("{{url_for('static', filename='yu_logo.png')}}");
 
-        .header {
+            background-size: cover, 40% auto;
+            background-position: center, right 20px center;
+            background-repeat: no-repeat;
+
+            color: white;
+            padding: 40px 30px;
+            border-radius: 20px;
+            margin-bottom: 30px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            box-shadow: 0 10px 20px rgba(0, 44, 95, 0.15);
         }
 
-        .butten-camera {
-            background-color: #7f8c8d;
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 6px;
+        .yu-header h1 {
+            font-size: 1.8rem;
+            font-weight: 800;
+            margin: 0;
+            letter-spacing: -0.5px;
+        }
+
+        .yu-header p {
+            margin: 5px 0 0 0;
+            opacity: 0.8;
+            font-size: 0.95rem;
+        }
+
+        .btn-camera-view {
+            background-color: #ffffff;
+            color: var(--yu-navy);
+            border: 2px solid transparent;
+            padding: 12px 24px;
+            border-radius: 50px;
+            font-weight: 700;
             cursor: pointer;
-            font-weight: bold;
-            transition: background 0.2s;
+            transition: all 0.25s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         }
 
-        .butten-camera:hover {
-            background-color: #95a5a6;
+        .btn-camera-view:hover {
+            background-color: var(--yu-blue);
+            color: white;
+            transform: translateY(-2px);
         }
 
-        /* 온습도 패널 구역 */
-        .sensor-panel {
+        .info-grid {
             display: flex;
             gap: 20px;
-            justify-content: space-around;
-            background: white;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             margin-bottom: 30px;
         }
 
-        .sensor-card {
-            text-align: center;
+        .info-card {
             flex: 1;
-        }
-
-        .sensor-value {
-            font-size: 2.5rem;
-            font-weight: bold;
-            color: #3498db;
-            margin-top: 10px;
-        }
-
-        /* 실시간 좌석 배치도 구역 */
-        .seat-container {
             background: white;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 24px;
+            border-radius: 18px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+            border: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            gap: 20px;
         }
 
-        .seat-grid {
-            display: grid;
-            gap: 15px;
-            justify-content: center;
-            margin-top: 20px;
-        }
-
-        .seat {
-            width: 60px;
-            height: 60px;
-            border-radius: 8px;
+        .info-card-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 14px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: bold;
+            font-size: 1.3rem;
+            background-color: #f1f5f9;
+            color: var(--yu-blue);
+        }
+
+        .info-card-content h3 {
+            margin: 0;
+            font-size: 0.85rem;
+            color: #718096;
+            text-uppercase: uppercase;
+            font-weight: 600;
+        }
+
+        .info-card-content p {
+            margin: 4px 0 0 0;
+            font-size: 1.6rem;
+            font-weight: 700;
+        }
+
+        .room-panel {
+            background: white;
+            padding: 35px;
+            border-radius: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+            border: 1px solid #e2e8f0;
+        }
+
+        .room-panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #f1f5f9;
+            padding-bottom: 15px;
+            margin-bottom: 25px;
+        }
+
+        .room-panel-header h2 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .seat-layout-grid {
+            display: grid;
+            gap: 16px;
+            justify-content: center;
+            padding: 10px;
+        }
+
+        .desk-seat {
+            width: 68px;
+            height: 68px;
+            border-radius: 14px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
             color: white;
-            transition: all 0.3s ease;
+            position: relative;
+            box-shadow: inset 0 -4px 0 rgba(0, 0, 0, 0.15);
+            transition: all 0.2s ease;
         }
 
-        .seat.available {
-            background-color: #2ecc71;
+        .desk-seat .seat-label {
+            font-size: 0.95rem;
         }
 
-        .seat.occupied {
-            background-color: #e74c3c;
-            animation: pulse 0.5s ease-in-out;
+        .desk-seat .seat-badge {
+            font-size: 0.65rem;
+            opacity: 0.9;
+            margin-top: 1px;
+            background: rgba(25px, 25px, 25px, 0.2);
+            padding: 2px 6px;
+            border-radius: 20px;
         }
 
-        @keyframes pulse {
+        .desk-seat.available {
+            background-color: var(--seat-green);
+        }
+
+        .desk-seat.occupied {
+            background-color: var(--seat-red);
+            animation: customPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes customPop {
             0% {
-                transform: scale(1);
-            }
-
-            50% {
-                transform: scale(1.1);
+                transform: scale(0.8);
             }
 
             100% {
@@ -123,45 +207,34 @@
 
         #toast-container {
             position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 1000;
+            top: 30px;
+            right: 30px;
+            z-index: 9999;
             display: flex;
             flex-direction: column;
             gap: 10px;
         }
 
-        .toast {
-            background-color: #333333;
-            color: #ffffff;
-            padding: 16px;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        .yu-toast {
+            background: #ffffff;
+            color: #1a202c;
+            padding: 18px 24px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e2e8f0;
+            border-left: 5px solid #ecc94b;
+            min-width: 300px;
             display: flex;
-            flex-direction: column;
-            gap: 4px;
-            min-width: 280px;
-            animation: slideIn 0.3s ease, fadeOut 0.5s ease 4.5s forwards;
-            border-left: 6px solid yellow;
+            gap: 15px;
+            align-items: center;
+            animation: slideInRight 0.3s ease, fadeOutLeft 0.4s ease 4.6s forwards;
         }
 
-        /* 안내 전용 알림은 푸른색 바가 뜨도록 레이아웃 고정 */
-        .toast.info {
-            border-left-color: #3498db;
+        .yu-toast.info {
+            border-left-color: var(--yu-blue);
         }
 
-        .toast-title {
-            font-weight: bold;
-            font-size: 1rem;
-            color: #f39c12;
-        }
-
-        .toast-body {
-            font-size: 0.9rem;
-            color: #eee;
-        }
-
-        @keyframes slideIn {
+        @keyframes slideInRight {
             from {
                 transform: translateX(100%);
                 opacity: 0;
@@ -173,77 +246,64 @@
             }
         }
 
-        @keyframes fadeOut {
-            from {
-                opacity: 1;
-            }
-
+        @keyframes fadeOutLeft {
             to {
+                transform: translateX(30px);
                 opacity: 0;
             }
         }
 
-        .modal {
+        .custom-popup-overlay {
             display: none;
             position: fixed;
-            z-index: 2000;
-            left: 0;
             top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.6);
+            background: rgba(0, 44, 95, 0.6);
+            backdrop-filter: blur(5px);
+            z-index: 5000;
             align-items: center;
             justify-content: center;
         }
 
-        .model-content {
-            background-color: white;
-            padding: 20px;
-            border-radius: 12px;
-            max-width: 640px;
+        .popup-window {
+            background: white;
+            border-radius: 24px;
             width: 90%;
+            max-width: 600px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
             text-align: center;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-            position: relative;
         }
 
-        .modal-close {
-            position: absolute;
-            top: 15px;
-            right: 20px;
-            font-size: 30px;
-            font-weight: bold;
-            color: #aaa;
+        .popup-img-frame {
+            width: 100%;
+            max-height: 380px;
+            object-fit: contain;
+            border-radius: 14px;
+            background: #1a202c;
+            margin: 15px 0;
+        }
+
+        .btn-close-popup {
+            background: #edf2f7;
+            color: #4a5568;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-weight: 600;
             cursor: pointer;
         }
 
-        .modal-close:hover {
-            color: #333;
-        }
-
-        .debug-img {
-            width: 100%;
-            max-height: 400px;
-            object-fit: contain;
-            margin-top: 15px;
-            border: 2px solid #ddd;
-            border-radius: 6px;
-            background-color: #000;
-        }
-
-        .btn-refresh {
-            background-color: #3498db;
+        .btn-refresh-popup {
+            background: var(--yu-blue);
             color: white;
             border: none;
-            padding: 8px 16px;
-            border-radius: 4px;
+            padding: 10px 24px;
+            border-radius: 30px;
+            font-weight: 600;
             cursor: pointer;
-            margin-top: 10px;
-            font-weight: bold;
-        }
-
-        .btn-refresh:hover {
-            background-color: #2980b9;
         }
     </style>
 </head>
@@ -251,45 +311,76 @@
 <body>
     <div id="toast-container"></div>
 
-    <div class="container">
-        <div class="header">
-            <div style="width: 100px;"></div>
-            <h1>공용 공간 자리 혼잡도 시스템</h1>
-            <button class="butten-camera" onclick="openDebugModal()">현 상황 보기</button>
+    <div class="dashboard-wrapper">
+        <div class="yu-header">
+            <div>
+                <h1>공용 공간 자리 혼잡도 관리 시스템</h1>
+                <p><i class="fa-solid fa-graduation-cap me-1"></i> 영남대학교 컴퓨터공학과 — 팀 세마포어</p>
+            </div>
+            <button class="btn-camera-view" onclick="openDebugModal()">
+                <i class="fa-solid fa-video me-1"></i> 카메라 확인하기
+            </button>
         </div>
 
-        <div class="sensor-panel">
-            <div class="sensor-card">
-                <h3>현재 온도</h3>
-                <div id="temp-value" class="sensor-value">-- °C</div>
+        <div class="info-grid">
+            <div class="info-card">
+                <div class="info-card-icon"><i class="fa-solid fa-id-card"></i></div>
+                <div class="info-card-content">
+                    <h3>현재 좌석 이용률</h3>
+                    <p id="seat-summary">-- / --</p>
+                </div>
             </div>
-            <div class="sensor-card">
-                <h3>현재 습도</h3>
-                <div id="hum-value" class="sensor-value">-- %</div>
+            <div class="info-card">
+                <div class="info-card-icon" style="color: #ecc94b;"><i
+                        class="fa-solid fa-temperature-three-quarters"></i></div>
+                <div class="info-card-content">
+                    <h3>실시간 실내 온도</h3>
+                    <p id="temp-value" style="color: #e53e3e;">-- °C</p>
+                </div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-icon" style="color: #3182ce;"><i class="fa-solid fa-droplet"></i></div>
+                <div class="info-card-content">
+                    <h3>실시간 실내 습도</h3>
+                    <p id="hum-value" style="color: #3182ce;">-- %</p>
+                </div>
             </div>
         </div>
 
-        <div class="seat-container">
-            <h3>실시간 좌석 배치도</h3>
-            <div id="seat-layout" class="seat-grid"></div>
+        <div class="room-panel">
+            <div class="room-panel-header">
+                <h2><i class="fa-solid fa-chair me-2" style="color: var(--yu-navy);"></i>2층 제1열람실 배치도</h2>
+                <div class="d-flex gap-3" style="font-size: 0.85rem; font-weight: 600;">
+                    <div><span
+                            style="display:inline-block; width:12px; height:12px; background:var(--seat-green); border-radius:3px; margin-right:4px;"></span>공석
+                    </div>
+                    <div><span
+                            style="display:inline-block; width:12px; height:12px; background:var(--seat-red); border-radius:3px; margin-right:4px;"></span>이용중
+                    </div>
+                </div>
+            </div>
+            <div id="seat-layout" class="seat-layout-grid"></div>
         </div>
     </div>
 
-    <div id="camera-modal" class="modal">
-        <div class="model-content">
-            <span class="modal-close" onclick="closeDebugModal()">&times;</span>
-            <h3>CCTV 실시간 상황 (/debug/frame에서 가져온 이미지)</h3>
-            <p style="color: #666; font-size: 0.9rem; margin:0;">YOLO 모델이 분석 중인 라즈베리파이 카메라의 최신 이미지입니다.</p>
-            <img id="frame-image" src="" alt="최신 이미지 불러오는 중..." class="debug-img">
-            <br>
-            <button class="btn-refresh" onclick="refreshFrame()">🔄 새로고침</button>
+    <div id="camera-modal" class="custom-popup-overlay">
+        <div class="popup-window">
+            <h3 class="m-0 fw-bold" style="font-size:1.2rem; color:var(--yu-navy);"><i
+                    class="fa-solid fa-database me-2"></i>라즈베리파이 원격 영상</h3>
+            <p class="text-muted small m-0 mt-1">YOLO 사물 탐지 노드가 실시간 가공 중인 `/debug/frame` 데이터 바인딩입니다.</p>
+            <img id="frame-image" src="" alt="데이터 로드 중..." class="popup-img-frame">
+            <div class="d-flex justify-content-center gap-2 mt-2">
+                <button class="btn-close-popup" onclick="closeDebugModal()">창 닫기</button>
+                <button class="btn-refresh-popup" onclick="refreshFrame()"><i
+                        class="fa-solid fa-arrows-rotate me-1"></i>새로고침</button>
+            </div>
         </div>
     </div>
 
     <script>
-        const SERVER_URL = window.location.host; // 백엔드 주소 동적 할당
+        const SERVER_URL = window.location.host;
+        let globalSeatMatrix = [];
 
-        // 페이지 로드시 최초 1회 전체 데이터 가져오기
         async function fetchInitialData() {
             try {
                 const response = await fetch(`http://${SERVER_URL}/get/live`);
@@ -297,7 +388,7 @@
                 updateSensorUI(data.temp, data.hum);
                 renderSeatGrid(data.seatList);
             } catch (error) {
-                console.error("초기 데이터를 가져오는데 실패했습니다:", error);
+                console.error("초기 로드 실패:", error);
             }
         }
 
@@ -306,67 +397,88 @@
             document.getElementById('hum-value').innerText = `${hum.toFixed(1)} %`;
         }
 
+        function updateSeatSummary() {
+            let total = 0, occupied = 0;
+            globalSeatMatrix.forEach(row => {
+                row.forEach(isOccupied => {
+                    total++;
+                    if (isOccupied) occupied++;
+                });
+            });
+            document.getElementById('seat-summary').innerText = `${occupied} / ${total} 석`;
+        }
+
         function renderSeatGrid(seatList) {
+            globalSeatMatrix = seatList;
             const gridContainer = document.getElementById('seat-layout');
-            gridContainer.innerHTML = ''; // 초기화
+            gridContainer.innerHTML = '';
 
             const rows = seatList.length;
             const cols = seatList[0].length;
 
-            gridContainer.style.gridTemplateColumns = `repeat(${cols}, 60px)`;
+            gridContainer.style.gridTemplateColumns = `repeat(${cols}, 68px)`;
 
             for (let x = 0; x < rows; x++) {
                 for (let y = 0; y < cols; y++) {
                     const isOccupied = seatList[x][y];
                     const seatDiv = document.createElement('div');
                     seatDiv.id = `seat-${x}-${y}`;
-                    seatDiv.className = `seat ${isOccupied ? 'occupied' : 'available'}`;
-                    seatDiv.innerText = `${x + 1}-${y + 1}`;
+                    seatDiv.className = `desk-seat ${isOccupied ? 'occupied' : 'available'}`;
+
+                    seatDiv.innerHTML = `
+                        <div class="seat-label">${x + 1}-${y + 1}</div>
+                        <div class="seat-badge">${isOccupied ? '배정' : '공석'}</div>
+                    `;
                     gridContainer.appendChild(seatDiv);
                 }
             }
+            updateSeatSummary();
         }
 
         function showNotification(title, message, type = 'warning') {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
-            toast.className = `toast ${type}`;
+            toast.className = `yu-toast ${type}`;
+
+            const icon = type === 'info' ? 'fa-circle-info' : 'fa-triangle-exclamation';
+            const iconColor = type === 'info' ? '#005aab' : '#ecc94b';
 
             toast.innerHTML = `
-                <div class="toast-title">${title}</div>
-                <div class="toast-body">${message}</div>
+                <div style="font-size: 1.2rem; color: ${iconColor};"><i class="fa-solid ${icon}"></i></div>
+                <div>
+                    <div style="font-weight: 700; font-size: 0.9rem;">${title}</div>
+                    <div style="font-size: 0.8rem; color: #718096; margin-top: 2px;">${message}</div>
+                </div>
             `;
-
             container.appendChild(toast);
-
-            // 5초 후 알림 화면에서 완전 제거
-            setTimeout(() => {
-                toast.remove();
-            }, 5000);
+            setTimeout(() => { toast.remove(); }, 5000);
         }
 
-        // 2. 웹소켓 실시간 알림 연결 및 동적 분기 처리
         function connectWebSocket() {
             const ws = new WebSocket(`ws://${SERVER_URL}/ws/notify`);
 
             ws.onmessage = function (event) {
                 const data = JSON.parse(event.data);
 
-                // 명세서 주의사항 분기 처리: latestSeat 가 있는지 확인 후 알림 상자 호출 연동
                 if (data.latestSeat) {
                     data.latestSeat.forEach(change => {
                         const seatElement = document.getElementById(`seat-${change.x}-${change.y}`);
                         if (seatElement) {
                             const seatName = `${change.x + 1}행 ${change.y + 1}열`;
+                            globalSeatMatrix[change.x][change.y] = change.newStatus;
+
                             if (change.newStatus) {
-                                seatElement.className = 'seat occupied';
-                                showNotification('좌석 이용 시작', `${seatName} 좌석을 사용중입니다.`, 'info');
+                                seatElement.className = 'desk-seat occupied';
+                                seatElement.querySelector('.seat-badge').innerText = '배정';
+                                showNotification('좌석 이용 시작', `${seatName} 사용 등록되었습니다.`, 'info');
                             } else {
-                                seatElement.className = 'seat available';
-                                showNotification('⚠️ 시스템 자동 반납', `${seatName} 좌석이 자동으로 반납 처리되었습니다.`, 'warning');
+                                seatElement.className = 'desk-seat available';
+                                seatElement.querySelector('.seat-badge').innerText = '공석';
+                                showNotification('⚠️ 미사용 자동 반납', `${seatName} 좌석이 자동 반납되었습니다.`, 'warning');
                             }
                         }
                     });
+                    updateSeatSummary();
                 }
                 else if (data.latestSensor) {
                     updateSensorUI(data.latestSensor.temp, data.latestSensor.hum);
@@ -374,12 +486,10 @@
             };
 
             ws.onclose = function () {
-                console.log("웹소켓 연결이 끊겼습니다. 3초 후 재연결합니다.");
-                setTimeout(connectWebSocket, 3000); // 좀비 재연결 시스템 보존
+                setTimeout(connectWebSocket, 3000);
             };
         }
 
-        // 3. 카메라 실시간 프레임 팝업창 제어용 자바스크립트 함수 추가
         function openDebugModal() {
             document.getElementById('camera-modal').style.display = 'flex';
             refreshFrame();
