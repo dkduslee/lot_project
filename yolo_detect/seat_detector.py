@@ -10,10 +10,13 @@ import requests
 SERVER_URL = "http://semaphore.kro.kr:5000/store/live"
 
 AUTO_RETURN_TIME = 10  # 초
-
+TARGET_FPS = 2  # 카메라 fps
+FRAME_INTERVAL = 1.0 / TARGET_FPS
 model = YOLO("yolov8n.pt")
 
 cap = cv2.VideoCapture(0)
+cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
+cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
 
 seat_status = {
     "Seat1": "EMPTY",
@@ -30,6 +33,7 @@ empty_start_time = {
 }
 
 last_send_time = 0
+last_process_time = 0
 
 # =========================
 # 메인 루프
@@ -42,6 +46,15 @@ while True:
     if not ret:
         print("카메라 읽기 실패")
         break
+
+    now = time.time()
+
+    if now - last_process_time < FRAME_INTERVAL:
+        if cv2.waitKey(1) & 0xFF == ord("q"):
+            break
+        continue
+
+    last_process_time = now
 
     h, w = frame.shape[:2]
 
