@@ -13,6 +13,7 @@ AUTO_RETURN_TIME = 10  # 초
 TARGET_FPS = 2  # 카메라 fps
 FRAME_INTERVAL = 1.0 / TARGET_FPS
 model = YOLO("yolov8n.pt")
+DISPLAY_SCALE = 0.8  # 디버깅 화면 스케일
 
 cap = cv2.VideoCapture(0)
 cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
@@ -195,8 +196,10 @@ while True:
             (0, 255, 0),
             2
         )
-
-    cv2.imshow("Seat Detector", annotated)
+    display_w = int(w * DISPLAY_SCALE)
+    display_h = int(h * DISPLAY_SCALE)
+    resized_frame = cv2.resize(annotated, (display_w, display_h))
+    cv2.imshow("Seat Detector", resized_frame)
 
     if cv2.waitKey(1) & 0xFF == ord("q"):
         break
