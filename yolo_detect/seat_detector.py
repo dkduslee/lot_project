@@ -9,7 +9,7 @@ import requests
 
 SERVER_URL = "http://semaphore.kro.kr:5000/store/live"
 
-AUTO_RETURN_TIME = 10  # 초
+OCCUPY_THRESHOLD_TIME = 5.0  # 점유 인식 대기 시간 (초)
 TARGET_FPS = 2  # 카메라 fps
 FRAME_INTERVAL = 1.0 / TARGET_FPS
 model = YOLO("yolov8n.pt")
@@ -26,7 +26,8 @@ seat_status = {
     "Seat4": "EMPTY"
 }
 
-empty_start_time = {
+# 연속 탐지 시작 시간을 기록
+occupy_start_time = {
     "Seat1": None,
     "Seat2": None,
     "Seat3": None,
@@ -119,27 +120,28 @@ while True:
                     current_status[seat_name] = "OCCUPIED"
 
     # =========================
-    # 자동 반납 처리
+    # 점유 상태 지연 업데이트 처리
     # =========================
 
     for seat_name in SEATS:
 
         if current_status[seat_name] == "OCCUPIED":
 
-            seat_status[seat_name] = "OCCUPIED"
-            empty_start_time[seat_name] = None
+            # 처음 사람을 인식한 경우 시간 기록
+            if occupy_start_time[seat_name] is None:
+                occupy_start_time[seat_name] = time.time()
+
+            # 지속 시간 계산
+            occupy_duration = time.time() - occupy_start_time[seat_name]
+
+            # 5초 이상 지속되었을 때만 실제 상태를 OCCUPIED로 변경
+            if occupy_duration >= OCCUPY_THRESHOLD_TIME:
+                seat_status[seat_name] = "OCCUPIED"
 
         else:
-
-            if empty_start_time[seat_name] is None:
-                empty_start_time[seat_name] = time.time()
-
-            empty_duration = time.time() - empty_start_time[seat_name]
-
-            if empty_duration >= AUTO_RETURN_TIME:
-                seat_status[seat_name] = "AUTO RETURN"
-            else:
-                seat_status[seat_name] = "EMPTY"
+            # 사람이 인식되지 않으면 시작 시간 초기화 및 EMPTY 상태로 변경
+            occupy_start_time[seat_name] = None
+            seat_status[seat_name] = "EMPTY"
 
     # =========================
     # 서버 전송
