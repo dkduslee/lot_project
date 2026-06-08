@@ -12,8 +12,8 @@ import datetime
 #SERVER_URL = "http://semaphore.kro.kr:5000/store/live"
 SERVER_URL = "http://127.0.0.1:5000/store/live"
 
-OCCUPY_THRESHOLD_TIME = 5.0  # 점유 인식 대기 시간 (초)
-TARGET_FPS = 2  # 카메라 fps
+OCCUPY_THRESHOLD_TIME = 3.0  # 점유 인식 대기 시간 (초)
+TARGET_FPS = 5  # 카메라 fps
 FRAME_INTERVAL = 1.0 / TARGET_FPS
 model = YOLO("yolov8n.pt")
 DISPLAY_SCALE = 0.8  # 디버깅 화면 스케일
@@ -215,6 +215,7 @@ while True:
     history_path = os.path.join(FRAMES_SAVE_DIR, history_filename)
 
     try:
+        pass
         # 1. 기록 보관용 파일 저장
         cv2.imwrite(history_path, annotated)
         # 2. 웹 브라우저 제공용 덮어쓰기 저장
