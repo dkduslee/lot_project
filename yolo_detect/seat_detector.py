@@ -18,7 +18,7 @@ model = YOLO("yolov8n.pt")
 DISPLAY_SCALE = 0.8  # 디버깅 화면 스케일
 
 # 서버의 frames 폴더 경로 지정 및 폴더 생성
-FRAMES_SAVE_DIR = "../backend/frames"
+FRAMES_SAVE_DIR = "/home/pi/lot_project/backend/frames"
 os.makedirs(FRAMES_SAVE_DIR, exist_ok=True)
 
 # 브라우저에 고정으로 서빙될 파일 경로
