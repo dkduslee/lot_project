@@ -4,3 +4,4 @@ python-dotenv>=1.0
 ultralytics
 requests
 opencv-python
+adafruit-circuitpython-htu21d

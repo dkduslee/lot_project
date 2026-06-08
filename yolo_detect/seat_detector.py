@@ -3,6 +3,7 @@ import cv2
 import time
 import requests
 import os
+import datetime
 
 # =========================
 # 설정
@@ -19,7 +20,9 @@ DISPLAY_SCALE = 0.8  # 디버깅 화면 스케일
 # 서버의 frames 폴더 경로 지정 및 폴더 생성
 FRAMES_SAVE_DIR = "../backend/frames"
 os.makedirs(FRAMES_SAVE_DIR, exist_ok=True)
-FRAME_SAVE_PATH = os.path.join(FRAMES_SAVE_DIR, "latest.png")
+
+# 브라우저에 고정으로 서빙될 파일 경로
+LATEST_FRAME_PATH = os.path.join(FRAMES_SAVE_DIR, "latest.png")
 
 cap = cv2.VideoCapture(0)
 cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
@@ -182,7 +185,7 @@ while True:
         last_send_time = now
 
     # =========================
-    # 화면 표시 및 파일 저장
+    # 화면 표시 및 파일 이중 저장
     # =========================
 
     for seat_name, (sx1, sy1, sx2, sy2) in SEATS.items():
@@ -204,9 +207,17 @@ while True:
             2
         )
 
-    # 프레임을 백엔드 폴더에 파일로 저장 (웹 디버깅 뷰어용)
+    # 날짜와 밀리초가 포함된 파일명 생성 (예: 20260608_131536_123.png)
+    now_dt = datetime.datetime.now()
+    timestamp_str = now_dt.strftime("%Y%m%d_%H%M%S_%f")[:19]
+    history_filename = f"frame_{timestamp_str}.png"
+    history_path = os.path.join(FRAMES_SAVE_DIR, history_filename)
+
     try:
-        cv2.imwrite(FRAME_SAVE_PATH, annotated)
+        # 1. 기록 보관용 파일 저장
+        cv2.imwrite(history_path, annotated)
+        # 2. 웹 브라우저 제공용 덮어쓰기 저장
+        cv2.imwrite(LATEST_FRAME_PATH, annotated)
     except Exception as e:
         print("프레임 파일 저장 실패:", e)
 
