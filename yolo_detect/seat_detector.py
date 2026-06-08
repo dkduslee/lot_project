@@ -9,7 +9,8 @@ import datetime
 # 설정
 # =========================
 
-SERVER_URL = "http://semaphore.kro.kr:5000/store/live"
+#SERVER_URL = "http://semaphore.kro.kr:5000/store/live"
+SERVER_URL = "http://127.0.0.1:5000/store/live"
 
 OCCUPY_THRESHOLD_TIME = 5.0  # 점유 인식 대기 시간 (초)
 TARGET_FPS = 2  # 카메라 fps
