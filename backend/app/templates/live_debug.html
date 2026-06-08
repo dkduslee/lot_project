@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Debug Frame</title>
+    <style>
+        body {
+            background-color: #1e1e1e;
+            color: #ffffff;
+            text-align: center;
+            font-family: sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        img {
+            max-width: 100%;
+            border: 3px solid #4CAF50;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h2>📷 실시간 인식 디버깅 뷰어</h2>
+    <p>페이지 새로고침 없이 0.5초마다 프레임이 자동 갱신됩니다.</p>
+
+    <img id="live-frame" src="/debug/frame" alt="Latest Frame">
+
+    <script>
+        const imgElement = document.getElementById('live-frame');
+
+        // 500ms(0.5초)마다 이미지 src를 업데이트하여 새로고침 효과를 냄
+        setInterval(() => {
+            // 브라우저 캐싱을 방지하기 위해 URL 끝에 타임스탬프를 붙임
+            imgElement.src = '/debug/frame?t=' + new Date().getTime();
+        }, 500);
+    </script>
+</body>
+</html>

@@ -1,6 +1,6 @@
 import os
 import glob
-from flask import Blueprint, current_app, send_file, jsonify
+from flask import Blueprint, current_app, send_file, jsonify, render_template
 
 bp = Blueprint("debug", __name__)
 
@@ -15,3 +15,8 @@ def debug_frame():
 
     latest = max(candidates, key=os.path.getmtime)
     return send_file(latest, mimetype="image/png", max_age=0)
+
+
+@bp.get("/debug/live")
+def debug_live():
+    return render_template("live_debug.html")
