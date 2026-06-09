@@ -5,7 +5,7 @@ import busio
 from adafruit_htu21d import HTU21D
 
 SERVER_URL = "http://localhost:5000/store/temphum"
-SEND_INTERVAL = 2  # 데이터 전송 주기 (초)
+SEND_INTERVAL = 5  # 데이터 전송 주기 (초)
 i2c = busio.I2C(board.SCL, board.SDA)
 sensor = HTU21D(i2c)
 

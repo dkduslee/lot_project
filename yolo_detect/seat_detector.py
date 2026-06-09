@@ -13,7 +13,7 @@ import datetime
 SERVER_URL = "http://127.0.0.1:5000/store/live"
 
 OCCUPY_THRESHOLD_TIME = 3.0  # 점유 인식 대기 시간 (초)
-TARGET_FPS = 5  # 카메라 fps
+TARGET_FPS = 2  # 카메라 fps
 FRAME_INTERVAL = 1.0 / TARGET_FPS
 model = YOLO("yolov8n.pt")
 DISPLAY_SCALE = 0.8  # 디버깅 화면 스케일
